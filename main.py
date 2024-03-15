@@ -121,8 +121,9 @@ if __name__ == '__main__':
     # http_proxy  = 'https://162.223.91.11:80'
     worker = WorkerDBtoDB()
 
-    start_number = 97509
-    end_number = 99001
+    # start_number = 88000
+    start_number = 70000
+    end_number = 80001
 
     worker.scan_get_save_data( start_number=start_number, end_number=end_number, proxies=proxy_http)
 

@@ -1,7 +1,7 @@
 
 *WB database service*
 ====
-WB database service
+WB database service (console version). Working with PostgreSQL
 ----
 
 >> WB database service. 

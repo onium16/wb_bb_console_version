@@ -37,6 +37,7 @@ class DownloaderDataSG:
         headers = Headers().generate()
         response_geo_inf = requests.get(url=self.URL_GEO, headers=headers, proxies=self.proxies)
         response_geo_inf_json = response_geo_inf.json()
+        logger.info(response_geo_inf_json)
         logger.debug(response_geo_inf_json)
         
         response_xinfo = response_geo_inf_json['xinfo']

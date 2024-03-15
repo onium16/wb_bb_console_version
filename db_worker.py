@@ -221,12 +221,11 @@ class DbSellersGoods:
                     if data_s:
                         supplier_id = data_s.get('supplierId')
                         message_result = f"Data added about sellers '{supplier_id}' in the table database - '{database}'"
-                        return message_result
+                        return message_result, supplier_id
                     elif data_g:
                         supplier_id = data_g.get('data', {}).get('products', [])[number].get('supplierId')
                         id_goods = data_g.get('data', {}).get('products', [])[number].get('id')
-                        message_result = f"Information already exists about goods('{id_goods}') for sellers '{supplier_id}' in the table database - '{database}'."
-                        return message_result
+                        return id_goods, supplier_id
                     else:
                         message_error = f"Error in time receving data about 'ID' supplier or goods"
                         return message_error
@@ -300,6 +299,7 @@ class DbSellersGoods:
             if numbers == 0:
                 logger.info("Products for saving not found.")
             else:
+                list_idgoods =[]
                 for number in range(0, len(data_g['data']['products'])):
                     new_inf_keys = data_g['data']['products'][number].keys()
                     value = (data_g['data']['products'][number])
@@ -307,9 +307,9 @@ class DbSellersGoods:
                     logger.debug(new_inf_keys)
                     logger.debug(new_inf_values)
 
-                    result = save_one_inf(new_inf_keys, new_inf_values, number=number)
-                    logger.info(result)
-                    
+                    id_goods, supplier_id = save_one_inf(new_inf_keys, new_inf_values, number=number)
+                    list_idgoods.append(id_goods)  
+                logger.info(f"Information already exists about goods('{list_idgoods}') for sellers '{supplier_id}' in the table database - '{database}'.")
         else:
             logger.debug("Data_s data not received.")
             pass
@@ -764,6 +764,7 @@ def main_db(method_db=None, method_table=None, database=None, data_s=None, data_
     else:
         message_error = "ERROR method_table. Check the method_table name!"
         logger.error(message_error)
+
 
 if __name__=="__main__":
 
