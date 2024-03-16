@@ -15,11 +15,11 @@ mylogger()
 def check_proxy_connection(proxy):
     try:
         host, port = proxy['http'].split(':')[1][2:], int(proxy['http'].split(':')[2])
-        sock = socket.create_connection((host, port), timeout=5)
+        sock = socket.create_connection((host, port), timeout=2)
         sock.close()
         return True
     except Exception as e:
-        print(f"Proxy connection failed: {e}")
+        logger.warning(f"Proxy connection failed: {e}")
         return False
 
 class DownloaderDataSG:
@@ -39,7 +39,6 @@ class DownloaderDataSG:
         response_geo_inf_json = response_geo_inf.json()
         logger.info(response_geo_inf_json)
         logger.debug(response_geo_inf_json)
-        
         response_xinfo = response_geo_inf_json['xinfo']
         logger.debug(response_xinfo)
 
@@ -75,7 +74,7 @@ class DownloaderDataSG:
             try:
                 seller = await self.get_quickly_inf_seller(number=number)
                 logger.info(f'{seller}')
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.6)
             except requests.exceptions.JSONDecodeError as e:
                 logger.error(f"An error occurred while receiving a response, the data is not available. Details: {e}")
                 seller = None
@@ -88,7 +87,7 @@ class DownloaderDataSG:
                     goods = await self.get_goods_inf(number=number)
                     logger.debug(f'{goods}')
                     logger.info(f"The data about the goods has been received.")
-                    await asyncio.sleep(1)
+                    await asyncio.sleep(0.75)
                 except requests.exceptions.JSONDecodeError as e:
                     logger.error(f"An error occurred while receiving a response, the data is not available. Details: {e}")
                     goods = None
@@ -106,7 +105,7 @@ class DownloaderDataSG:
                     return (seller, goods)
 
             logger.warning(f"Retry attempt {attempt + 1}/{max_retries}")
-            await asyncio.sleep(2)  # Adjust the sleep duration between retries
+            await asyncio.sleep(1)  # Adjust the sleep duration between retries
 
         logger.error("Max retries reached. Unable to obtain information.")
         return (None, None)

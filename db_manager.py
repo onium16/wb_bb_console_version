@@ -125,7 +125,7 @@ class DatabaseManager:
                 logger.info(f"User '{username}' successfully added.")
         except psycopg2.errors.UniqueViolation as eunique:
             error_code = eunique.pgcode
-            print(error_code)
+            logger.error(error_code)
             if 'email' in str(eunique):
                 logger.warning(f"A user with this email ('{email}') already exists.")
             else:
@@ -225,19 +225,19 @@ if __name__ == "__main__":
     # db_manager.create_database(dbase=DBUSER_NAME, user=DB_USER, password=DB_PASSWORD, host=HOST_PSQL, port=PORT_PSQL)
     # db_manager.create_user_table(dbase=DBUSER_NAME, table_name=TABLE_USERS_NAME)
 
-    # Add a user
-    db_manager.add_user(username='leo', password='password123', email='leo@example.com', company_name='Company ABC')
+    # # Add a user
+    # db_manager.add_user(username='leo', password='password123', email='leo@example.com', company_name='Company ABC')
 
-    # db_manager.remove_user(username='leo', password='password123')
+    # # db_manager.remove_user(username='leo', password='password123')
 
-    # Read users
-    users = db_manager.read_users()
-    print("Users in the database:", users)
-    # Read users
-    users = db_manager.read_users_with_details()
-    print("Users in the database:", users)
+    # # Read users
+    # users = db_manager.read_users()
+    # print("Users in the database:", users)
+    # # Read users
+    # users = db_manager.read_users_with_details()
+    # print("Users in the database:", users)
 
-    # Authenticate user
-    # Note: You need to implement the authenticate_user method
-    is_authenticated = db_manager.authenticate_user(username='leo', password='password123')
-    print("User authentication:", is_authenticated)
+    # # Authenticate user
+    # # Note: You need to implement the authenticate_user method
+    # is_authenticated = db_manager.authenticate_user(username='leo', password='password123')
+    # print("User authentication:", is_authenticated)

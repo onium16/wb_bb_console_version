@@ -438,7 +438,7 @@ class DbSellersGoods:
         number - the NAME selector by which we will reference entries in the database table. It is represented by "supplierId" or text (%text%).
         id_name - this is name column 
         """
-        logger.debug(number, id_name)
+        logger.debug(f'{number}, {id_name}')
         try:
             if None in (DBSEL_NAME, DBGOOD_NAME, table_name_sellers, table_name_goods):
                 error_message = "One or more environment variables are not defined. Please check the information."
@@ -773,7 +773,7 @@ if __name__=="__main__":
     # main_db(method_db="DELETE-ALL")
     # main_db(method_table="TABLE-DELETE-G")
     # main_db(method_db="CREATE-ALL", method_table="TABLE-CREATE-ALL")
-    main_db(method_table="TABLE-CREATE-G")
+    # main_db(method_table="TABLE-CREATE-G")
     # main_db(method_table="DATA-SAVE", data_s=seller_inf)
     # main_db(method_table="DATA-SAVE", data_g=goods_inf)
     # main_db(method_table ="DATA-DELETE", data=seller_inf, supplier_id=104452)

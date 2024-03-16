@@ -39,14 +39,15 @@ class WorkerDBtoDB:
         from loguru import logger
         # Load variables from .env without updating the environment
         env_vars = dotenv_values(".env")
-
+        logger.debug(env_vars)
         # Access the variables in the dictionary
         DB_USER = env_vars.get("USER_PSQL")
         DB_PASSWORD = env_vars.get("PASSWORD_PSQL")
         HOST_PSQL = env_vars.get("HOST_PSQL")
         PORT_PSQL = env_vars.get("PORT_PSQL")
         DBSEL_NAME = env_vars.get("DBSEL_NAME")
-
+        
+        print(HOST_PSQL, PORT_PSQL)
         #Check data in DB
         dbSellerGoods = DbSellersGoods(user=DB_USER,password=DB_PASSWORD,host=HOST_PSQL,port=PORT_PSQL,dbname=DBSEL_NAME)
         check_result = dbSellerGoods.check__seller_inf(number)
@@ -111,7 +112,6 @@ class WorkerDBtoDB:
         except TypeError as e:
             logger.error(e)
         
-
 if __name__ == '__main__':
 
 #WORK METHODS
@@ -122,8 +122,8 @@ if __name__ == '__main__':
     worker = WorkerDBtoDB()
 
     # start_number = 88000
-    start_number = 70000
-    end_number = 80001
+    start_number = 60000
+    end_number = 70001
 
     worker.scan_get_save_data( start_number=start_number, end_number=end_number, proxies=proxy_http)
 
