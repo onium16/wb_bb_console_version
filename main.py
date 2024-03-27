@@ -5,6 +5,8 @@ import requests
 from parser_seller import DownloaderDataSG
 from db_worker import main_db, DbSellersGoods
 
+from dotenv import dotenv_values
+from loguru import logger
 from logger_own_settings import mylogger
 
 # Connecting the logger with settings in the environment.
@@ -35,8 +37,6 @@ class WorkerDBtoDB:
         """
         number = number
 
-        from dotenv import dotenv_values
-        from loguru import logger
         # Load variables from .env without updating the environment
         env_vars = dotenv_values(".env")
         logger.debug(env_vars)
@@ -47,10 +47,10 @@ class WorkerDBtoDB:
         PORT_PSQL = env_vars.get("PORT_PSQL")
         DBSEL_NAME = env_vars.get("DBSEL_NAME")
         
-        print(HOST_PSQL, PORT_PSQL)
+        logger.debug(HOST_PSQL, PORT_PSQL)
         #Check data in DB
         dbSellerGoods = DbSellersGoods(user=DB_USER,password=DB_PASSWORD,host=HOST_PSQL,port=PORT_PSQL,dbname=DBSEL_NAME)
-        check_result = dbSellerGoods.check__seller_inf(number)
+        check_result = dbSellerGoods.check_seller_inf(number)
         if check_result == True:
             message_warning = f"Seller number {number} found in the database"
             logger.error(f'{message_warning}')
@@ -96,7 +96,7 @@ class WorkerDBtoDB:
         main_db(method_table="DATA-UPD", data_g=goods_inf)
         return print(f"Updated seller data with {number} is completed.")
     
-    def delete_data_seller(self,  number):
+    def delete_data_seller(self, number):
         """
         Deletion of all data from all tables based on the user ID.
         Provide the customer number (ID).
@@ -111,9 +111,9 @@ class WorkerDBtoDB:
             return seller_inf, goods_inf
         except TypeError as e:
             logger.error(e)
-        
+    
 if __name__ == '__main__':
-
+ 
 #WORK METHODS
     # proxy_http = {'http': 'http://139.99.148.90:3128'}
     proxy_http = {'http': 'http://162.223.91.11:80'}
@@ -122,8 +122,8 @@ if __name__ == '__main__':
     worker = WorkerDBtoDB()
 
     # start_number = 88000
-    start_number = 60000
-    end_number = 70001
+    start_number = 220000
+    end_number = 230000 #195000
 
     worker.scan_get_save_data( start_number=start_number, end_number=end_number, proxies=proxy_http)
 
@@ -131,7 +131,14 @@ if __name__ == '__main__':
     # number=104475,
 
     # # worker.preparation_dbs()
-    # # worker.delete_data_seller(number=number)
+    
+    # DELETE NUMBER 
+
+    # try:
+    #     for number in range (194760, 194780):
+    #         worker.delete_data_seller(number=number)
+    # except Exception as e:
+    #     print("Error. not found number") 
 
     # for number in range(102413, 102999):
     #     logger.warning(number)

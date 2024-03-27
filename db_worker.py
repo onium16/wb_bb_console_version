@@ -24,7 +24,7 @@ from logger_own_settings import mylogger
 mylogger()
 
 class DbMethods:
-    """CREATE & DELETE DB"""
+    """CREATE & DELETE DB_USERS"""
     def __init__(self):
         pass
 
@@ -396,7 +396,7 @@ class DbSellersGoods:
             table = table_name_sellers
             data = data_s
             # Getting the value supplierId in data_s
-            data_id = data_s['supplierId']
+            data_id = data_s['supplierid']
             logger.info(data_id)
             id_name = "supplierId"
             self.dbname = dbname
@@ -778,6 +778,11 @@ if __name__=="__main__":
     # main_db(method_table="DATA-SAVE", data_g=goods_inf)
     # main_db(method_table ="DATA-DELETE", data=seller_inf, supplier_id=104452)
     # main_db(method_table ="DATA-READ", supplier_id=104452)
+    data = main_db(method_table ="DATA-READ", supplier_id=104452) 
+    print(data[0]) 
+
+    # main_db(method_table="DATA-UPD", data_s=seller_inf)
+
 
     # TEST BLOCK
     # db = DbSellersGoods(user=DB_USER, password=DB_PASSWORD, host=HOST_PSQL, port=PORT_PSQL)
@@ -794,3 +799,4 @@ if __name__=="__main__":
     # db.read_inf(supplier_id=104452, database_sellers=DBSEL_NAME, table_name_sellers=table_name_sellers)
     # db.read_inf(supplier_id=104452, database_goods=DBGOOD_NAME, table_name_goods=table_name_goods)
     pass
+

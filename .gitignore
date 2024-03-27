@@ -3,3 +3,8 @@
 /logs/
 /__pycache__
 test.py
+.mypy_cache
+.pytest_cache
+/tests/__pycache__
+/tests/logs/
+

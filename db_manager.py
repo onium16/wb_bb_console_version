@@ -1,5 +1,6 @@
 # wbbase\wbbase_app\dbworker\db_manager.py
 
+from typing import Optional, Tuple, Union
 from dotenv import dotenv_values
 from loguru import logger
 import psycopg2
@@ -10,26 +11,35 @@ from logger_own_settings import mylogger
 mylogger()
 
 class DatabaseManager:
-    def __init__(self, user, password, host, port, dbname, table_name):
-        self.user = user
-        self.password = password
-        self.host = host
-        self.port = port
-        self.dbname = dbname
-        self.conn = self._connect()
-        self.table_name = table_name
-
+    def __init__(self, user: Union[str, None], 
+                 password: Union[str, None], 
+                 host: Union[str, None], 
+                 port: Union[str, None], 
+                 dbname: Union[str, None] = None, 
+                 table_name: Union[str, None] = None
+                 ) -> None:
+        if all((user, password, host, port)):
+            self.user = user
+            self.password = password
+            self.host = host
+            self.port = port
+            self.dbname = dbname
+            self.table_name = table_name
+        else:
+            logger.info("Didn't get all values for conection to Database. Check values in virtual environments.")
+            raise ValueError("Not all values were provided for connecting to the database. Check values in the environment.")
 
     def _connect(self):
-        return psycopg2.connect(
-            user=self.user,
-            password=self.password,
-            host=self.host,
-            port=self.port,
-            dbname=self.dbname
-        )
+        try:
+            if self.dbname:
+                return psycopg2.connect(user=self.user, password=self.password, host=self.host, port=self.port, dbname=self.dbname)
+            else:
+                return psycopg2.connect(user=self.user, password=self.password, host=self.host, port=self.port)
+        except psycopg2.Error as e:
+            logger.error("Error connecting to the database:", e)
+            return None
 
-    def create_database(self, dbase, user, password, host, port):
+    def create_database(self, dbase: str, user: str, password: str, host: str, port: int) -> None:
         """
         CREATE DB
         """
@@ -54,7 +64,7 @@ class DatabaseManager:
         except psycopg2.Error as e:
             logger.error(f"Error creating the database: {e}")
 
-    def delete_database(self, dbname, user, password, host, port):
+    def delete_database(self, dbname: str, user: str, password: str, host: str, port: int) -> None:
         """
         DELETE DB
         
@@ -86,7 +96,7 @@ class DatabaseManager:
         except psycopg2.Error as e:
             logger.error(f"Error deleting the database: {e}")
 
-    def create_user_table(self, dbase, table_name):
+    def create_user_table(self, dbase: str, table_name: str) -> None:
         """
         CREATE TABLE _USERS IN DB USERS
         """
@@ -109,10 +119,20 @@ class DatabaseManager:
                             );""")
                 self.conn.commit()
                 logger.info(f"The table {table_name} has been successfully created for the {dbase} database.")
-        except NameError as e:
+        except psycopg2.Error as e:
             logger.error(f"Error creating the table: {e}")
 
-    def add_user(self, username, password, email, company_name=None):
+    
+    def add_user(self, username: str, password: str, email: str, company_name: Optional[str] = None) -> None:
+        """
+        Add a new user to the database.
+
+        Args:
+            username (str): The username of the new user.
+            password (str): The password of the new user.
+            email (str): The email address of the new user.
+            company_name (Optional[str], optional): The company name of the new user. Defaults to None.
+        """
         # Hash the password using SHA-2
         password_hash = hashlib.sha256(password.encode()).hexdigest()
 
@@ -147,16 +167,18 @@ class DatabaseManager:
             users = cur.fetchall()
         return users
     
-    def authenticate_user(self,  username, password):
-        # Check user and password
+    def authenticate_user(self, username: str, password: str) -> Optional[Tuple]:
+        """
+        Authenticate a user based on username and password.
+        """
         password_hash = hashlib.sha256(password.encode()).hexdigest()
         authenticate_user_query = f"SELECT * FROM {self.table_name} WHERE username = %s AND password_hash = %s;"
         with self.conn, self.conn.cursor() as cur:
             cur.execute(authenticate_user_query, (username, password_hash,))
             user = cur.fetchone()
-            return user is not None
+            return user  
         
-    def change_password(self, username, old_password, new_password):
+    def change_password(self, username: str, old_password: str, new_password: str) -> bool:
         # Authenticate user with the old password
         if self.authenticate_user(username, old_password):
             # Hash the new password using SHA-2
@@ -176,10 +198,11 @@ class DatabaseManager:
                 return False
         else:
             logger.error("Authentication failed. Unable to change the password.")
+            return False
         
-    def remove_user(self, username, password):
+    def remove_user(self, username: str, password: str) -> bool:
         # Remove the user from the database
-        authenticate_query =self.authenticate_user(self.table_name, username, password)
+        authenticate_query =self.authenticate_user(username, password)
         remove_user_query = 'DELETE FROM {} WHERE username = %s;'.format(self.table_name)
         if authenticate_query:
             try:
@@ -187,12 +210,15 @@ class DatabaseManager:
                     cur.execute(remove_user_query, (username,))
                     self._connect().commit()
                     logger.info(f"The user '{username}' has been deleted.")
+                    return True
             except Exception as e:
                 logger.error(f"{e}")
+                return False
         else:
             logger.error("Authorization to delete the user failed.")
+            return False
 
-    def get_user_details(self, username):
+    def get_user_details(self, username: str,) -> dict:
         """
         Fetching additional user data (email and company_name) based on the username.
         """
@@ -221,14 +247,15 @@ if __name__ == "__main__":
 
     # Replace connection parameters with your own
     db_manager = DatabaseManager(user=DB_USER, password=DB_PASSWORD, host=HOST_PSQL, port=PORT_PSQL, dbname=DBUSER_NAME, table_name=TABLE_USERS_NAME)
+
     # db_manager.delete_database(dbname=DBUSER_NAME, user=DB_USER, password=DB_PASSWORD, host=HOST_PSQL, port=PORT_PSQL)
     # db_manager.create_database(dbase=DBUSER_NAME, user=DB_USER, password=DB_PASSWORD, host=HOST_PSQL, port=PORT_PSQL)
     # db_manager.create_user_table(dbase=DBUSER_NAME, table_name=TABLE_USERS_NAME)
 
     # # Add a user
-    # db_manager.add_user(username='leo', password='password123', email='leo@example.com', company_name='Company ABC')
+    # db_manager.add_user(username='niko', password='password123', email='niko@example.com', company_name='Company ABC')
 
-    # # db_manager.remove_user(username='leo', password='password123')
+    # db_manager.remove_user(username='niko', password='password123')
 
     # # Read users
     # users = db_manager.read_users()

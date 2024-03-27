@@ -1,4 +1,4 @@
-# DB_Seller
+# setting_db.py
 columns_sellers = """
             supplierId INT PRIMARY KEY,
             bin VARCHAR(255),
